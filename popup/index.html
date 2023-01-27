@@ -1,0 +1,229 @@
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <title>Dribble</title>
+        <script src=" index.js"></script>
+    </head>
+    <style>
+        html {
+            font-family: 'Lato', 'Lucida Grande', 'Lucida Sans Unicode', Tahoma, Sans-Serif;
+        }
+
+        body {
+            background-color: #282841;
+            background-image: url('../test-logo-for-extension.png');
+            background-blend-mode: hard-light;
+            color: white;
+            min-width: 364px;
+            /* width: 755px; */
+            min-height: 422px;
+            max-height: 800px;
+            border-radius: 10px;
+            overflow: scroll;
+        }
+
+        main {}
+
+        .content {
+            display: flex;
+            font-size: 1.14em;
+        }
+
+        .l-side {
+            padding: 2%;
+            border: 2px solid #87b222;
+            flex-basis: 50%;
+            display: none;
+        }
+
+        .l-side>div {
+            display: flex;
+            justify-content: center;
+        }
+
+        .r-side {
+            /* display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%; */
+            width: 100%;
+
+        }
+
+        .r-side>div {
+            background: #000000cf;
+            padding: 2%;
+            margin: 2% 0;
+        }
+
+        .rule-count-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .rule-count {
+            border-radius: 50em;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100px;
+            height: 100px;
+            font-size: 30px;
+            position: relative;
+            margin: 4%;
+            color: red;
+            font-family: cursive;
+            font-weight: 900;
+        }
+
+        .rule-count:before {
+            background: blue;
+            display: block;
+            position: absolute;
+            content: "";
+            width: 100%;
+            height: 100%;
+            border: 3px solid white;
+            border-radius: 50%;
+            z-index: -1;
+            padding: 5%;
+        }
+
+        h1 {
+            font-size: 20px;
+        }
+
+        code {
+            background-color: gray;
+            color: orange;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            background: #1b1616;
+            padding: 0 3%;
+            margin: 3% 0;
+        }
+
+        label,
+        input {
+            background: #1b1616;
+            padding: 2% 0;
+        }
+
+        input {
+            background-color: beige;
+            margin-bottom: 4%;
+            padding: 2%;
+        }
+
+        button {
+            background: firebrick;
+            color: floralwhite;
+            border-radius: 12px;
+            padding: 2%;
+        }
+
+        button:hover {
+            border: 2px solid;
+        }
+
+        .pagination {
+            display: grid;
+            color: white;
+            grid-template-columns: auto auto auto;
+            width: 100%;
+            grid-gap: 1em;
+            text-align: center;
+            align-items: center;
+        }
+
+        .pagination button {
+            background: transparent;
+        }
+
+        dl {
+            display: flex;
+            gap: 0.5em;
+            flex-direction: column;
+        }
+
+        dl div {
+            display: flex;
+            gap: 20px;
+            border-bottom: 1px solid gray;
+            padding: 2%;
+            background: #20613de6;
+
+        }
+
+        dl div dt {
+            max-width: 35%;
+        }
+
+        dl div dd {
+            margin: 0;
+            padding: 0;
+        }
+
+        .u-scrollbar::-webkit-scrollbar {
+            width: 0.4em;
+            /* height: 10px; */
+            /* background: deepskyblue; */
+            border-radius: 2em;
+            margin: 10px 2em;
+        }
+
+        /* Track */
+        .u-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.613);
+            border-radius: 71em;
+            margin: 13px 2em;
+        }
+
+        /* Handle */
+        .u-scrollbar::-webkit-scrollbar-thumb {
+            background: #00bcd4;
+            border-radius: 63em;
+            margin: 100px 2em;
+        }
+
+        /* Handle on hover */
+        .u-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgb(126, 123, 134);
+        }
+    </style>
+
+    <body class="u-scrollbar">
+        <main>
+            <div class="logo">
+                <div>
+                    <h1>Dribble: simplify your search</h1>
+                </div>
+                <hr />
+            </div>
+            <div class="content">
+                <div class="r-side">
+                    <div>
+                        <div>
+                            There are 0 rules for this site
+                        </div>
+                        <div class="rule-count-wrapper" aria-hidden="true">
+                            <div class="rule-count">0</div>
+                        </div>
+                    </div>
+                    <div>
+                        <button id="add-new">Add new rule</button>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </body>
+
+</html>
