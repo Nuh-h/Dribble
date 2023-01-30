@@ -56,34 +56,34 @@ function generateViewRule(item) {
         <dl>
             <div>
                 <dt>
-                    Containers to check (separated by semi-colons):
+                    Containers to check:
                 </dt>
                 <dd>${item?.itemsSelectors.join(', ')}</dd>
             </div>
 
             <div>
                 <dt>
-                    Terms to look for (separated by semi-colons):
+                    Terms to look for:
                 </dt>
                 <dd>${item?.searchTerms.join(', ')}</dd>
             </div>
 
             <div>
                 <dt>
-                    Link elements to follow in container (separated by semi-colons):
+                    Link elements to follow in container:
                 </dt>
                 <dd>${item?.subPages[0]?.linksToFollowSelectors.join(', ')}</dd>
             </div>
             <div>
                 <dt>
-                    Elements to check in followed links (separated by semi-colons):
+                    Elements to check in followed links:
                 </dt>
                 <dd>${item?.subPages[0]?.itemsSelectors.join(', ')}</dd>
 
             </div>
             <div>
                 <dt>
-                    Terms to look for in following links (separated by semi-colons):
+                    Terms to look for in following links:
                 </dt>
                 <dd>${item?.subPages[0]?.searchTerms.join(', ')}</dd>
             </div>
