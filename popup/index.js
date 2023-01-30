@@ -1,4 +1,5 @@
 async function getActiveTabURL() {
+
     const tabs = await chrome.tabs.query({
         currentWindow: true,
         active: true
@@ -9,11 +10,25 @@ async function getActiveTabURL() {
 
 const activeTab = getActiveTabURL();
 
+chrome.action.setBadgeBackgroundColor({ color: '#4688F1' });
+
+const updateBadge = async () => {
+    const url = new URL((await activeTab).url);
+
+    chrome.runtime.sendMessage({ type: "GET_RULES", site: url.origin, tabId: (await activeTab).id }, async (response) => {
+        const { data } = response;
+
+        chrome.action.setBadgeText({ text: `${data.length || 0}`, tabId: (await activeTab).id });
+
+    })
+};
+
 let uiPanel;
+
+updateBadge();
 
 function listenToAddNewRule() {
     document.querySelector('button[id=add-new]')?.addEventListener('click', (e) => {
-        preSave = uiPanel.innerHTML;
 
         uiPanel.innerHTML = newRuleForm;
 
@@ -21,11 +36,8 @@ function listenToAddNewRule() {
         form?.addEventListener('submit', handleFormSubmit);
 
         document.querySelector('button[id=cancel-rule]')?.addEventListener('click', (e) => {
-            console.log("Redirecting to dashboard ...>");
-            uiPanel.innerHTML = preSave;
 
-            listenToAddNewRule();
-            listenToViewRules();
+            addDashboard();
         })
 
     })
@@ -76,8 +88,8 @@ function generateViewRule(item) {
                 <dd>${item?.subPages[0]?.searchTerms.join(', ')}</dd>
             </div>
         </dl>
-        <button id="edit-rule" style="margin-bottom: 2%;" type="text">EDIT THIS RULE</button>
-        <button id="delete-rule" style="margin-bottom: 2%;" type="text">DELETE THIS RULE</button>
+        <button id="edit-rule" style="margin-bottom: 2%;">EDIT THIS RULE</button>
+        <button id="delete-rule" style="margin-bottom: 2%;">DELETE THIS RULE</button>
         `
     )
 }
@@ -97,50 +109,31 @@ async function listenToEditRule(data, index) {
 
         form?.addEventListener('submit', (e) => {
 
-            console.log("attempting to save edit rule");
+            const formContent = (selector) => e.target.querySelector(selector).value.toString().split(';')
 
             chrome.runtime.sendMessage({
                 type: "SAVE_EDIT", site: url.origin, tabId: activeTab.id, data: {
                     index,
                     rule: {
-                        itemsSelectors: e.target.querySelector('input[id=container]').value.toString().split(';'),
-                        searchTerms: e.target.querySelector('input[id=terms]').value.toString().split(';'),
+                        itemsSelectors: formContent('input[id=container]'),
+                        searchTerms: formContent('input[id=terms]'),
                         action: "DELETE",
                         subPages: [
                             {
-                                linksToFollowSelectors: e.target.querySelector('input[id=links-to-follow]').value.toString().split(';'),
-                                itemsSelectors: e.target.querySelector('input[id=subpage-containers]').value.toString().split(';'),
-                                searchTerms: e.target.querySelector('input[id=subpage-terms]').value.toString().split(';'),
+                                linksToFollowSelectors: formContent('input[id=links-to-follow]'),
+                                itemsSelectors: formContent('input[id=subpage-containers]'),
+                                searchTerms: formContent('input[id=subpage-terms]'),
                             }
                         ]
                     }
                 }
-            }, (res) => console.log("Done editing rule"))
+            }, (res) => {
+                updateBadge();
+            })
 
         });
     })
 }
-
-async function listenToDeleteRule(data, index) {
-    const url = new URL((await activeTab).url);
-
-    document.querySelector('button[id=delete-rule]')?.addEventListener('click', (e) => {
-        chrome.runtime.sendMessage({
-            type: "DELETE_RULE",
-            site: url.origin,
-            tabId: activeTab.id,
-            data: {
-                index
-            }
-        }, (res) => {
-            console.log(res);
-
-            RenderViewRules();
-        })
-    })
-
-}
-
 
 function updateRuleViewDOM(data, InComingPagination) {
     const pagination = { ...InComingPagination }
@@ -159,7 +152,7 @@ function updateRuleViewDOM(data, InComingPagination) {
     `;
 
     listenToEditRule(data, pagination.current - 1);
-    listenToDeleteRule(data, pagination.current - 1);
+    listenToDeleteRule(pagination.current - 1);
 
     document.querySelector('button[id=return-home]')?.addEventListener('click', (e) => {
         addDashboard();
@@ -180,18 +173,25 @@ function updateRuleViewDOM(data, InComingPagination) {
     })
 }
 
-async function RenderViewRules() {
+async function RenderViewRules(current = 1) {
     const url = new URL((await activeTab).url);
 
-    chrome.runtime.sendMessage({ type: "GET_RULES", site: url.origin, tabId: activeTab.id }, (response) => {
+    chrome.runtime.sendMessage({ type: "GET_RULES", site: url.origin, tabId: (await activeTab).id }, async (response) => {
         const { data } = response;
 
         const pagination = {
-            current: 1,
+            current: current,
             total: data.length
         }
 
-        updateRuleViewDOM(data, pagination);
+        updateBadge();
+
+        if (!data?.length) {
+            addDashboard();
+        }
+        else {
+            updateRuleViewDOM(data, pagination);
+        }
     })
 }
 
@@ -228,7 +228,7 @@ const newRuleForm = `
             <span class="notification"></span>
 
             <div style="display: flex; width: 100%; gap: 2%; justify-content: end;">
-                <button id="cancel-rule" type="button" style="margin-bottom: 2%;">CANCEL</button>
+                <button id="cancel-rule" type="button" style="margin-bottom: 2%;">RETURN TO DASHBOARD</button>
                 <button id="add-rule" type="submit" style="margin-bottom: 2%;">ADD RULE</button>
             <div>
         </form>
@@ -263,7 +263,7 @@ const editRuleForm = (item) => `
                 Terms to look for in following links (separated by semi-colons):
             </label>
             <input id="subpage-terms" type="text" placeholder="Student;Flat;Shared" value="${item.subPages[0].searchTerms.join(";")}">
-            <span class="notification"></span>
+            <span class="notification" aria-live="region"></span>
             <button style="margin-bottom: 2%;" type="button" id="cancel-edit">CANCEL</button>
             <button style="margin-bottom: 2%;" type="submit" id="save-edit">SAVE</button>
         </form>
@@ -272,18 +272,15 @@ const editRuleForm = (item) => `
 
 async function addDashboard() {
 
+    updateBadge();
+
     const url = new URL((await activeTab).url);
 
-    chrome.runtime.sendMessage({ type: "GET_RULES", site: url.origin, tabId: activeTab.id }, (response) => {
-        console.log("Requesting content for ... ", url.origin)
-        const { data } = response ?? {};
+    chrome.runtime.sendMessage({ type: "GET_RULES", site: url.origin, tabId: (await activeTab).id }, async (response) => {
 
-        const rules = data;
+        const { data: rules } = response ?? {};
 
-        if (rules) {
-
-            chrome.action.setBadgeText({ text: rules.length + '' })
-
+        if (rules.length) {
             uiPanel.innerHTML = `
                 <div>
                     <div>
@@ -298,12 +295,11 @@ async function addDashboard() {
                     <button id="view-rules" type="text">View rules</button>
                     <button id="add-new" type="text">Add new rule</button>
                 </div>
+                <div style="display:flex; position: absolute; bottom:0; width:100%;"><button id="clear-all">Clear rules for all sites</button></div>
             `;
 
         }
         else {
-            chrome.action.setBadgeText({ text: '0' })
-
             uiPanel.innerHTML = `
                 <div>
                     <div>
@@ -317,6 +313,7 @@ async function addDashboard() {
                     Do you want to?
                     <button id="add-new" type="text">Add new rule</button>
                 </div>
+                <div style="display:flex; position: absolute; bottom:0; width:100%;"><button id="clear-all">Clear rules for all sites</button></div>
             `;
         }
 
@@ -324,18 +321,46 @@ async function addDashboard() {
 
         listenToViewRules();
 
+        listenToClearAllRules();
+
     });
 }
 
+async function listenToDeleteRule(index) {
+    const url = new URL((await activeTab).url);
 
-document.addEventListener('DOMContentLoaded', async () => {
+    document.querySelector('button[id=delete-rule]')?.addEventListener('click', async (e) => {
+        await chrome.runtime.sendMessage({
+            type: "DELETE_RULE",
+            site: url.origin,
+            tabId: activeTab.id,
+            data: {
+                index
+            }
+        }, async (res) => {
+            RenderViewRules();
+        })
+    })
+
+}
+
+async function listenToClearAllRules() {
+    document.querySelector('button[id=clear-all]').addEventListener('click', () => {
+        chrome.storage.local.clear((res) => {
+            addDashboard();
+        });
+    })
+}
 
 
-    uiPanel = document.querySelector('.r-side');
+document.addEventListener('DOMContentLoaded', () => {
 
-    listenToAddNewRule();
+
+    uiPanel = document.querySelector('.panel');
 
     addDashboard();
+
+    listenToAddNewRule();
 
 })
 
@@ -354,7 +379,7 @@ async function handleFormSubmit(e) {
 
         const siteToAdd = [
             {
-                title: activeTab.title,
+                title: (await activeTab).title,
                 site: url.origin,
                 path: url.pathname,
                 rules: [
@@ -377,17 +402,19 @@ async function handleFormSubmit(e) {
 
         try {
             const callback = (response) => {
-                console.log("Received add-reply from background.js  >>> ", response);
                 document.querySelector('form').reset();
+
                 const notification = document.querySelector('.notification')
-                notification.style = 'display: block; width: auto; height: 100%; padding: 2%; background-color:green; color:yellow; transition: all 1s ease-in;'
-                notification.innerText = "Successfully added new rule!"
+                notification.style = 'display: block; width: auto; height: 100%; padding: 2%; margin: 2% 0; background-color:green; color:yellow; transition: all 1s ease-in;';
+
+                notification.innerText = "Successfully added new rule!";
                 setTimeout(() => {
                     notification.style = "display: none; height:0px;"
-                    addDashboard();
-                }, 5000)
+                }, 3000);
+
+                updateBadge();
             }
-            console.log("Going to try and send message to background! ")
+
             chrome.runtime.sendMessage({ type: "SAVE_TO_STORE", data: siteToAdd[0] }, callback);
         }
         catch (err) {

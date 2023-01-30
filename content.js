@@ -12,7 +12,7 @@ chrome.runtime.sendMessage({ type: "GET_RULES", site: site.origin }, (response) 
 
         rulesForThisSite = rules;
 
-        console.info("Rules found for this site:: ", rules)
+        console.info("Rules found for this site: ", rules)
 
     }
     else {
@@ -31,7 +31,7 @@ window.addEventListener('scroll', async () => {
 
             const cards = document.querySelectorAll(container);
 
-            cards.every(card => {
+            Array.from(cards).every(card => {
                 const text = card.innerText;
 
                 const checkForTerms = (text, terms) => {
@@ -70,7 +70,7 @@ window.addEventListener('scroll', async () => {
                             rule?.subPages?.itemsSelectors?.forEach(container => {
                                 const blocks = doc.querySelector(container);
 
-                                blocks.every(block => {
+                                Array.from(blocks).every(block => {
                                     const text = block.text;
 
                                     const isMatch = checkForTerms(text, rule?.subPages?.searchTerms)
