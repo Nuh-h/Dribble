@@ -12,6 +12,8 @@ chrome.action.setBadgeBackgroundColor({ color: '#4688F1' });
 const updateBadge = (tabId, url) => {
     chrome.storage.local.get([url], async (result) => {
 
+        if (url?.startsWith("chrome://") || url?.startsWith("edge://")) return;
+
         if (result[url]) {
 
             chrome.action.setBadgeText({ text: `${result[url]?.rules?.length || 0}`, tabId: tabId });

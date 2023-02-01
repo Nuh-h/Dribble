@@ -15,6 +15,8 @@ chrome.action.setBadgeBackgroundColor({ color: '#4688F1' });
 const updateBadge = async () => {
     const url = new URL((await activeTab).url);
 
+    if (url?.origin?.startsWith("chrome://") || url?.origin?.startsWith("edge://")) return;
+
     chrome.runtime.sendMessage({ type: "GET_RULES", site: url.origin, tabId: (await activeTab).id }, async (response) => {
         const { data } = response;
 
@@ -115,14 +117,14 @@ async function listenToEditRule(data, index) {
                 type: "SAVE_EDIT", site: url.origin, tabId: activeTab.id, data: {
                     index,
                     rule: {
-                        itemsSelectors: formContent('input[id=container]'),
-                        searchTerms: formContent('input[id=terms]'),
+                        itemsSelectors: formContent('input#container'),
+                        searchTerms: formContent('input#terms'),
                         action: "DELETE",
                         subPages: [
                             {
-                                linksToFollowSelectors: formContent('input[id=links-to-follow]'),
-                                itemsSelectors: formContent('input[id=subpage-containers]'),
-                                searchTerms: formContent('input[id=subpage-terms]'),
+                                linksToFollowSelectors: formContent('input#links-to-follow'),
+                                itemsSelectors: formContent('input#subpage-containers'),
+                                searchTerms: formContent('input#subpage-terms'),
                             }
                         ]
                     }
