@@ -5,8 +5,8 @@
   "description": "Simplify your search, whatever the site. Example usage: set up rules to remove student lettings from estate agent search site.",
   "permissions": ["storage", "activeTab", "tabs", "scripting"],
   "action": {
-    "default_title": "Dribble Extension",
-    "default_popup": "popup/index.html",
+    "default_title": "Dribble - helping you eliminate irrelevant content",
+    // "default_popup": "popup/index.html",
     "default_icon": {
       "32": "Dribble-logo.png"
     }
@@ -14,10 +14,11 @@
   "host_permissions": ["<all_urls>"],
   "content_scripts": [
     {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": ["content.js"]
+      "matches": ["<all_urls>"],
+      "js": [
+        "content.js",
+        "tab.js"
+      ]
     }
   ],
   "background": {
