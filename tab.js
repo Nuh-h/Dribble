@@ -76,7 +76,7 @@ shadowDom.innerHTML = `
 
     .content {
         display: flex;
-        font-size: 1.14em;
+        font-size: 1.14rem;
     }
 
     .l-side {
@@ -234,23 +234,27 @@ shadowDom.innerHTML = `
         justify-content: space-around;
         flex-direction: row;
     }
-    .settings::before {
-        display: block;
-        content: "";
-        width: 50%;
-        height: 3px;
-        background: white;
-        position: fixed;
-        left: 25%;
-        margin-top: -9px;
-        cursor: pointer;
-    }
 
     .settings summary {
         padding: 0.5em;
         cursor: pointer;
         text-align: center;
         list-style: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .settings summary::before {
+        display: block;
+        content: "";
+        width: 50%;
+        height: 3px;
+        background: repeating-linear-gradient(36deg, #ffa900, #00ff61 45px);
+        margin-top: -15px;
+        cursor: pointer;
+        position: absolute;
+        filter: drop-shadow(2px 4px 6px white);
     }
 
     .settings-container {
@@ -263,6 +267,13 @@ shadowDom.innerHTML = `
 
     .settings-contianer::before {
 
+    }
+
+    .settings-wrapper {
+        display: flex;
+        justify-content: space-around;
+        gap: 10px;
+        padding: 10px;
     }
 
     .u-scrollbar::-webkit-scrollbar {
@@ -615,14 +626,10 @@ async function addDashboard() {
                 </div>
                 <div class="settings">
                     <details class="settings-container u-scrollbar">
-                        <summary style="
-                            padding: 0.5em;
-                            width: 100%;
-                            cursor: pointer;
-                            margin-left: 36%;
-                            list-style: none;
-                        ">SETTINGS</summary>
-                        <button id="clear-all">Clear rules for all sites</button>
+                        <summary>SETTINGS</summary>
+                        <div class="settings-wrapper">
+                            <button id="clear-all">Clear rules for all sites</button>
+                        </div>
                     </details>
                 </div>
             `;
@@ -645,7 +652,9 @@ async function addDashboard() {
                 <div class="settings">
                     <details class="settings-container u-scrollbar">
                         <summary>SETTINGS</summary>
-                        <button id="clear-all">Clear rules for all sites</button>
+                        <div class="settings-wrapper">
+                            <button id="clear-all">Clear rules for all sites</button>
+                        </div>
                     </details>
                 </div>
             `;
